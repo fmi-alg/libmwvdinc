@@ -121,13 +121,19 @@ std::ostream & operator<<(std::ostream & out, const Mark<TValue> & m) {
 
 //Tested with CGAL 4.12, gcc 7.3, Debian Buster
 
+#define WITH_MARK
+
 typedef CGAL::Exact_predicates_exact_constructions_kernel_with_sqrt Epecs; //Fails with: Constructor not available for this Kernel
 typedef CGAL::Extended_homogeneous<CGAL::Exact_integer>  EHEI; //Does not support roots
 typedef CGAL::Exact_predicates_exact_constructions_kernel Epec; //Does not support roots, fails with Constructor not available for this Kernel
 typedef CGAL::Extended_cartesian<Epecs::RT> ECepecs; //Fails with: Segmentation fault
 typedef CGAL::Simple_cartesian<Epecs::RT> SCepcs; // Fails with: Constructor not available for this Kernel
-typedef Epec Kernel;
-typedef CGAL::Nef_polyhedron_3<Kernel, CGAL::Default_items<Kernel>::Items, Mark<Dummy>>  Nef_polyhedron;
+typedef EHEI Kernel;
+#ifdef WITH_MARK
+	typedef CGAL::Nef_polyhedron_3<Kernel, CGAL::Default_items<Kernel>::Items, Mark<Dummy>>  Nef_polyhedron;
+#else
+	typedef CGAL::Nef_polyhedron_3<Kernel>  Nef_polyhedron;
+#endif
 typedef Nef_polyhedron::Plane_3  Plane_3;
 
 int main() {
@@ -153,14 +159,22 @@ int main() {
   auto c1vit = Cube1.vertices_begin();
   auto c1vend = Cube1.vertices_end();
   std::cout << "Cube vertices: " << std::endl;
+#ifdef WITH_MARK
   for(; c1vit != c1vend; ++c1vit) {
       std::cout << "Vertex.mark=" << c1vit->mark() << std::endl;
   }
+#else
+  std::cout << "No marks" << std::endl;
+#endif
   std::cout << "Cube halffacests: " << std::endl;
   auto c1fit = Cube1.halffacets_begin();
   auto c1fend = Cube1.halffacets_end();
+#ifdef WITH_MARK
   for(; c1fit != c1fend; ++c1fit) {
     std::cout << "Halffacet.mark=" << c1fit->mark() << std::endl;
   }
+#else
+  std::cout << "No marks" << std::endl;
+#endif
   return 0;
 }
